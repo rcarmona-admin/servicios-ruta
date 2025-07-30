@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Servicios - RUTA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .controls {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .control-group input, .control-group select, .control-group textarea {
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .control-group input:focus, .control-group select:focus, .control-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+            box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .date-section {
+            margin-bottom: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .date-header {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            padding: 20px 30px;
+            font-size: 1.3em;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .service-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 5px solid #3498db;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .service-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .service-card.completed {
+            border-left-color: #27ae60;
+            background: linear-gradient(135deg, #f0fff4, #e8f5e8);
+        }
+
+        .service-card.pending {
+            border-left-color: #f39c12;
+            background: linear-gradient(135deg, #fffbf0, #fef5e8);
+        }
+
+        .matricula {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .descripcion {
+            color: #555;
+            margin-bottom: 15px;
+            line-height: 1.4;
+            font-size: 14px;
+        }
+
+        .status-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .status-toggle input[type="checkbox"] {
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        .status-text {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .status-text.completed {
+            color: #27ae60;
+        }
+
+        .status-text.pending {
+            color: #f39c12;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+            transition: all 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+            transform: scale(1.1);
+        }
+
+        .no-services {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+            padding: 40px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .control-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .service-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚛 Gestión de Servicios - RUTA</h1>
+            <p>Sistema de seguimiento de servicios por matrícula y fecha</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label>Matrícula:</label>
+                <select id="matricula">
+                    <option value="">Seleccionar matrícula</option>
+                    <option value="0447MFM">0447MFM</option>
+                    <option value="2267LMZM">2267LMZM</option>
+                    <option value="0750JXM">0750JXM</option>
+                    <option value="6771KBK">6771KBK</option>
+                    <option value="4606HGD">4606HGD</option>
+                    <option value="9359GGD">9359GGD</option>
+                </select>
+
+                <label>Fecha:</label>
+                <input type="date" id="fecha">
+
+                <label>Descripción:</label>
+                <textarea id="descripcion" placeholder="Descripción del servicio" rows="2" style="min-width: 200px;"></textarea>
+
+                <button class="btn" onclick="agregarServicio()">➕ Agregar Servicio</button>
+            </div>
+
+            <div class="filters">
+                <label>Filtrar por matrícula:</label>
+                <select id="filtroMatricula" onchange="filtrarServicios()">
+                    <option value="">Todas las matrículas</option>
+                    <option value="0447MFM">0447MFM</option>
+                    <option value="2267LMZM">2267LMZM</option>
+                    <option value="0750JXM">0750JXM</option>
+                    <option value="6771KBK">6771KBK</option>
+                    <option value="4606HGD">4606HGD</option>
+                    <option value="9359GGD">9359GGD</option>
+                </select>
+
+                <label>Estado:</label>
+                <select id="filtroEstado" onchange="filtrarServicios()">
+                    <option value="">Todos los estados</option>
+                    <option value="completed">Completados</option>
+                    <option value="pending">Pendientes</option>
+                </select>
+
+                <button class="btn btn-secondary" onclick="limpiarFiltros()">🔄 Limpiar Filtros</button>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number" id="totalServicios">0</div>
+                    <div class="stat-label">Total Servicios</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="completados">0</div>
+                    <div class="stat-label">Completados</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="pendientes">0</div>
+                    <div class="stat-label">Pendientes</div>
+                </div>
+            </div>
+
+            <div id="serviciosContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        let servicios = [
+            // Datos iniciales basados en la imagen
+            {
+                id: 1,
+                matricula: "0447MFM",
+                fecha: "2024-01-29",
+                descripcion: "Punto limpio torres colchones SOLAR",
+                completado: true
+            },
+            {
+                id: 2,
+                matricula: "0447MFM",
+                fecha: "2024-01-29",
+                descripcion: "Solar textil TRADEBE",
+                completado: true
+            },
+            {
+                id: 3,
+                matricula: "0447MFM",
+                fecha: "2024-01-29",
+                descripcion: "Punto limpio Villar Del Olmo poda CML",
+                completado: true
+            },
+            {
+                id: 4,
+                matricula: "2267LMZM",
+                fecha: "2024-01-30",
+                descripcion: "Sortega madera LÓPEZ",
+                completado: false
+            },
+            {
+                id: 5,
+                matricula: "2267LMZM",
+                fecha: "2024-01-30",
+                descripcion: "Tomsa madera LÓPEZ",
+                completado: false
+            }
+        ];
+
+        let contadorId = 6;
+
+        function agregarServicio() {
+            const matricula = document.getElementById('matricula').value;
+            const fecha = document.getElementById('fecha').value;
+            const descripcion = document.getElementById('descripcion').value;
+
+            if (!matricula || !fecha || !descripcion.trim()) {
+                alert('Por favor, completa todos los campos');
+                return;
+            }
+
+            const nuevoServicio = {
+                id: contadorId++,
+                matricula: matricula,
+                fecha: fecha,
+                descripcion: descripcion.trim(),
+                completado: false
+            };
+
+            servicios.push(nuevoServicio);
+            
+            // Limpiar formulario
+            document.getElementById('matricula').value = '';
+            document.getElementById('fecha').value = '';
+            document.getElementById('descripcion').value = '';
+
+            mostrarServicios();
+        }
+
+        function toggleEstado(id) {
+            const servicio = servicios.find(s => s.id === id);
+            if (servicio) {
+                servicio.completado = !servicio.completado;
+                mostrarServicios();
+            }
+        }
+
+        function eliminarServicio(id) {
+            if (confirm('¿Estás seguro de que quieres eliminar este servicio?')) {
+                servicios = servicios.filter(s => s.id !== id);
+                mostrarServicios();
+            }
+        }
+
+        function filtrarServicios() {
+            mostrarServicios();
+        }
+
+        function limpiarFiltros() {
+            document.getElementById('filtroMatricula').value = '';
+            document.getElementById('filtroEstado').value = '';
+            mostrarServicios();
+        }
+
+        function mostrarServicios() {
+            const filtroMatricula = document.getElementById('filtroMatricula').value;
+            const filtroEstado = document.getElementById('filtroEstado').value;
+
+            let serviciosFiltrados = servicios;
+
+            if (filtroMatricula) {
+                serviciosFiltrados = serviciosFiltrados.filter(s => s.matricula === filtroMatricula);
+            }
+
+            if (filtroEstado) {
+                serviciosFiltrados = serviciosFiltrados.filter(s => 
+                    (filtroEstado === 'completed' && s.completado) ||
+                    (filtroEstado === 'pending' && !s.completado)
+                );
+            }
+
+            // Agrupar por fecha
+            const serviciosPorFecha = {};
+            serviciosFiltrados.forEach(servicio => {
+                if (!serviciosPorFecha[servicio.fecha]) {
+                    serviciosPorFecha[servicio.fecha] = [];
+                }
+                serviciosPorFecha[servicio.fecha].push(servicio);
+            });
+
+            // Ordenar fechas
+            const fechasOrdenadas = Object.keys(serviciosPorFecha).sort();
+
+            const container = document.getElementById('serviciosContainer');
+            container.innerHTML = '';
+
+            if (fechasOrdenadas.length === 0) {
+                container.innerHTML = '<div class="no-services">No hay servicios que mostrar</div>';
+                actualizarEstadisticas();
+                return;
+            }
+
+            fechasOrdenadas.forEach(fecha => {
+                const fechaFormatada = new Date(fecha + 'T00:00:00').toLocaleDateString('es-ES', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                const serviciosDia = serviciosPorFecha[fecha];
+                const completadosDia = serviciosDia.filter(s => s.completado).length;
+                const totalDia = serviciosDia.length;
+
+                const seccionFecha = document.createElement('div');
+                seccionFecha.className = 'date-section';
+                seccionFecha.innerHTML = `
+                    <div class="date-header">
+                        <span>${fechaFormatada.toUpperCase()}</span>
+                        <span>${completadosDia}/${totalDia} completados</span>
+                    </div>
+                    <div class="service-grid">
+                        ${serviciosDia.map(servicio => `
+                            <div class="service-card ${servicio.completado ? 'completed' : 'pending'}">
+                                <button class="delete-btn" onclick="eliminarServicio(${servicio.id})">×</button>
+                                <div class="matricula">${servicio.matricula}</div>
+                                <div class="descripcion">${servicio.descripcion}</div>
+                                <div class="status-toggle">
+                                    <input type="checkbox" ${servicio.completado ? 'checked' : ''} 
+                                           onchange="toggleEstado(${servicio.id})">
+                                    <span class="status-text ${servicio.completado ? 'completed' : 'pending'}">
+                                        ${servicio.completado ? '✅ Completado' : '⏳ Pendiente'}
+                                    </span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(seccionFecha);
+            });
+
+            actualizarEstadisticas();
+        }
+
+        function actualizarEstadisticas() {
+            const total = servicios.length;
+            const completados = servicios.filter(s => s.completado).length;
+            const pendientes = total - completados;
+
+            document.getElementById('totalServicios').textContent = total;
+            document.getElementById('completados').textContent = completados;
+            document.getElementById('pendientes').textContent = pendientes;
+        }
+
+        // Establecer fecha actual por defecto
+        document.getElementById('fecha').valueAsDate = new Date();
+
+        // Mostrar servicios iniciales
+        mostrarServicios();
+    </script>
+</body>
+</html>
